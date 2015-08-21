@@ -3,16 +3,20 @@ title: "Untitled"
 output: html_document
 ---
 
+This project is to identify the key columns in a data set and then create a machine learning solution so that we can assign people to classes based on the information collected.
  
 Loads the basic data, I am also loading the sample data for the project as well as the submission section 
 
 ```{r}
 library(caret)
 library(corrgram)
+library(rattle)
 
 data <- read.csv("C:/Users/mcockerham/Downloads/pml-training.csv", header = TRUE)
 test <- read.csv("C:/Users/mcockerham/Downloads/pml-testing.csv", header = TRUE)
 ```
+
+IDENTIFYING COLUMNS TO USE:
 
 The data set has a number of columns that are not numeric or composed mostly of nulls or invalid formulas.
 The following code sets all nulls to a character string and then creates a vector of values, false for columns that are not numeric and true for those that are.   Even after this we have a number of columns dealing with the nature of the data that we do not want to analyses like timestamps and descriptors for the people.  This code then sets those value to null.
@@ -37,25 +41,32 @@ columns$num_window <- FALSE
 cl <- c(do.call("cbind",columns)) 
 ```
 
-One way to look at our data is to create a coralation matrix, this shows how the data moves together in our case it is shown as a pie chart and how full the pie is shows how releated to items are.
+DATA CORRELATION:
+
+One way to look at our data is to create a correlation matrix, this shows how the data moves together in our case it is shown as a pie chart and how full the pie is shows how related to items are.
+
 
 
 ```{r}
  ## Create a corrilation matrix to test relationships
 
+cor_data <- data[,cl]
 cor_matrix <- cor( cor_data ,y=NULL)
 
 ##Print the matrix, did not print out the upper pannel and set the lower panel to show pie charts
 corrgram(cor_matrix, order=TRUE, lower.panel=panel.pie, text.panel=panel.txt,upper.panel=NULL, 
-         main="Corralation Matrix") 
+         main="CORRELATION MATRIX DATA") 
          
           
 ```
 
-Looking at the matrix lets us see that while some fields are highly correlated, we have almos not fields with corralations higher than .9.
+FINAL PREP FROR MODEL:
+
+Looking at the matrix lets us see that while some fields are highly correlated, we have almost not fields with correlations higher than .9.
 
 Before creating our training and test data sets we need add in the classe column that we are predicting on.
-To allow for consistant reruning of the report I am setting a seed for the random number generator before creating the vector that identifies the training and test sets.
+To allow for consistent rerunning of the report I am setting a seed for the random number generator before creating the vector that identifies the training and test sets.
+
 
 ```{r}
 columns$classe <- TRUE
@@ -63,12 +74,14 @@ columns$classe <- TRUE
 ## Changes the results to a column so we can filter our data on it
 col <- c(do.call("cbind",columns)) 
 set.seed(3425)
-inTrain <- createDataPartition(y=base$classe,p=.8,list=FALSE)
+inTrain <- createDataPartition(y=data$classe,p=.8,list=FALSE)
 
 training <- data[inTrain,col]
 testing <- data[-inTrain,col]
 homework  <- test[,col]
 ```
+
+RUNNING THE MODEL:
 
 For this project I choose to use the caret package random forest process limited to 5 layers.
 
@@ -77,14 +90,26 @@ modTree <- train(classe ~ ., data = training,method="rf",number = 5))
 ## Look at model
 ```
   
-This created the following 
+This created the following model 27  with an accuracy of 0.9904396
 
 ```{r}
 modTree
+
+finalTree <- getTree(modTree$finalModel,k=27)
+
+fancyRpartPlot(finalTree)
 ```
 
+CROSS VALIDATION:
 
-I then tested it on the testing sample I had exclueded from the training set.
+I then tested it on the testing sample I had excluded from the training set.
+
+as you can see from the table the model we extremely accurate when predicting the values found in the test set.
+
+In the table all the values on the lop left to lower right diagnal were correctly assigned while those that were on this line were assigned to an incorrect group.
+
+With correct and incorrect answers out of the model accuracy was
+
 ```{r}
 ##predict on testing set
 pred <- predict(modTree,testing);
@@ -93,10 +118,12 @@ testing$predRigh <- pred==testing$classe
 table(pred,testing$classe)
 ```
 
+SUBMISSION:
+  
+Lastly I used the created model on the homework dataset to produce the output for the class project.
 
-lastly I used the created model on the homework dataset to produce the output for the class project.
+I then used the supplied R code for the summary assignment to print out the 20 answers.
 
-I then used the supplied R code for the summary assignement to print out the 20 answers.
 ```{r}
 pred <- predict(modTree,homework);
 pred
