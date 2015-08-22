@@ -1,6 +1,6 @@
 ---
-title: "Practical Machine Learning Course Project"
-output: html_document
+title: "Untitled"
+output: pdf_document
 ---
 
 This project is to identify the key columns in a data set and then create a machine learning solution so that we can assign people to classes based on the information collected.
@@ -12,8 +12,8 @@ library(caret)
 library(corrgram)
  
 
-data <- read.csv("C:/Users/mcockerham/Downloads/pml-training.csv", header = TRUE)
-test <- read.csv("C:/Users/mcockerham/Downloads/pml-testing.csv", header = TRUE)
+data <- read.csv("C:/Users/mark/Downloads/pml-training.csv", header = TRUE)
+test <- read.csv("C:/Users/mark/Downloads/pml-testing.csv", header = TRUE)
 ```
 
 IDENTIFYING COLUMNS TO USE:
