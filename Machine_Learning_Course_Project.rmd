@@ -1,6 +1,6 @@
 ---
-title: "Untitled"
-output: pdf_document
+title: "Practical Machine Learning"
+output: html_document
 ---
 
 This project is to identify the key columns in a data set and then create a machine learning solution so that we can assign people to classes based on the information collected.
